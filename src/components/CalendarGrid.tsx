@@ -8,8 +8,8 @@ import { fetchCalendarData } from "../services/calendarService";
 dayjs.extend(isSameOrAfter);
 
 const COLUMNS_PER_PAGE = 10; // Adjust the number of user columns per page
-const DAY_START_HOUR = 7;
-const DAY_END_HOUR = 18;
+const DAY_START_HOUR = 7; // Start of the day in hours
+const DAY_END_HOUR = 18; // End of the day in hours
 
 const generateTimeSlots = (start: string, end: string): string[] => {
   const slots: string[] = [];
