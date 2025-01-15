@@ -135,7 +135,6 @@ const CalendarGrid: React.FC = () => {
 
   return (
     <div className="classrooms-grid-container">
-      <h1>Calendar Availability</h1>
       <table border={1} className="weekly-grid-table">
         <thead className="classroom-grid-header">
           <tr>
