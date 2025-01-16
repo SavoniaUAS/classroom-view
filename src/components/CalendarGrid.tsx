@@ -3,7 +3,10 @@ import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import "./WeeklyGrid.css";
 import { CalendarEvent, UserAvailability } from "../types/CalendarData";
-import { fetchCalendarData } from "../services/calendarService";
+import {
+  fetchCalendarData,
+  fetchClassroomsData,
+} from "../services/calendarService";
 
 dayjs.extend(isSameOrAfter);
 
@@ -39,14 +42,42 @@ const CalendarGrid: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      window.location.reload();
+    }, 300000); // Refresh every 5 minutes (300,000 ms)
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
-        const result = await fetchCalendarData();
-        if (result.success) {
-          setData(result.data);
-        } else {
-          setError("Failed to fetch calendar data.");
-        }
+        // Fetch classrooms data
+        const classroomsResult = await fetchClassroomsData();
+        const classrooms = classroomsResult ?? [];
+
+        // Fetch calendar data
+        const calendarResult = await fetchCalendarData();
+        const data = calendarResult.success ? calendarResult.data : [];
+
+        // Combine classrooms into data
+        const updatedData = [...data];
+        let hasChanges = false;
+
+        classrooms.forEach((classroom) => {
+          if (!updatedData.some((user) => user.userEmail === classroom)) {
+            updatedData.push({ userEmail: classroom, userEvent: [] });
+            hasChanges = true;
+          }
+        });
+
+        const sortedData = updatedData.sort((a, b) =>
+          a.userEmail.localeCompare(b.userEmail)
+        );
+
+        // Update the state if there's any change
+        setData(hasChanges ? sortedData : data);
       } catch (err) {
         setError("An error occurred while fetching data.");
       } finally {
@@ -55,7 +86,7 @@ const CalendarGrid: React.FC = () => {
     };
 
     fetchData();
-  }, []);
+  }, []); // Run once when the component mounts
 
   // Set up automatic pagination every 30 seconds
   useEffect(() => {
