@@ -21,6 +21,13 @@
   width: 4vw;
 }
 
+.weekly-grid-table th {
+  position: sticky;
+  top: 0; /* Sticks to the top of the viewport or container */
+  background-color: #ee3e8a; /* Company Color */
+  z-index: 1; /* Ensure it stays on top of table rows */
+  box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4); /* Optional: add shadow for better visibility */
+}
 .weekly-grid-table td {
   transition: background-color 0.3s ease;
 }
