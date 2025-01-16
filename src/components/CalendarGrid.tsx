@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import "./WeeklyGrid.css";
 import { CalendarEvent, UserAvailability } from "../types/CalendarData";
@@ -37,6 +37,22 @@ const CalendarGrid: React.FC = () => {
   const [data, setData] = useState<UserAvailability[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(false);
+  const [startOfDay, setStartOfDay] = useState<Dayjs>(
+    dayjs()
+      .startOf("day")
+      .set("hour", DAY_START_HOUR)
+      .set("minute", 0)
+      .set("second", 0)
+  );
+  const [endOfDay, setEndOfDay] = useState<Dayjs>(
+    dayjs()
+      .startOf("day")
+      .set("hour", DAY_END_HOUR)
+      .set("minute", 0)
+      .set("second", 0)
+  );
+
+  const [customHours, setCustomHours] = useState(true); // Checkbox state
   const [error, setError] = useState<string | null>(null);
 
   // Pagination state for columns
@@ -110,21 +126,35 @@ const CalendarGrid: React.FC = () => {
   if (error) return <p>Error: {error}</p>;
   if (!data) return <p>No data available.</p>;
 
-  const handleCheckboxChange = () => {
+  const handleAutoRefreshChange = () => {
     setAutoRefresh((prev) => !prev); // Toggle the auto-refresh state
   };
 
-  // Generate the start and end times for today
-  const startOfDay = dayjs()
-    .startOf("day")
-    .set("hour", DAY_START_HOUR)
-    .set("minute", 0)
-    .set("second", 0);
-  const endOfDay = dayjs()
-    .startOf("day")
-    .set("hour", DAY_END_HOUR)
-    .set("minute", 0)
-    .set("second", 0);
+  const getTimeWindow = () => {
+    const currentTime = dayjs().hour();
+    const startHour = customHours ? currentTime : DAY_START_HOUR; // Use custom hours if checkbox is checked
+    const endHour = customHours ? currentTime + 3 : DAY_END_HOUR; // Use custom hours if checkbox is checked
+
+    // Generate the start and end times for today
+    const startOfDay = dayjs()
+      .startOf("day")
+      .set("hour", startHour)
+      .set("minute", 0)
+      .set("second", 0);
+    const endOfDay = dayjs()
+      .startOf("day")
+      .set("hour", endHour)
+      .set("minute", 0)
+      .set("second", 0);
+
+    setStartOfDay(startOfDay);
+    setEndOfDay(endOfDay);
+  };
+
+  const handleTimeWindowChange = () => {
+    setCustomHours((prev) => !prev); // Toggle custom hours
+    getTimeWindow(); // Update time window
+  };
 
   // Generate time slots using the dynamic start and end times
   const timeSlots = generateTimeSlots(
@@ -168,6 +198,24 @@ const CalendarGrid: React.FC = () => {
 
   return (
     <div className="classrooms-grid-container">
+      <div className="checkbox-container">
+        <label>
+          <input
+            type="checkbox"
+            checked={autoRefresh}
+            onChange={handleAutoRefreshChange}
+          />
+          Enable Auto-Refresh
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={!customHours}
+            onChange={handleTimeWindowChange}
+          />
+          Show only upcoming hours
+        </label>
+      </div>
       <table border={1} className="weekly-grid-table">
         <thead className="classroom-grid-header">
           <tr>
@@ -224,14 +272,6 @@ const CalendarGrid: React.FC = () => {
         >
           Next
         </button>
-        <label>
-          <input
-            type="checkbox"
-            checked={autoRefresh}
-            onChange={handleCheckboxChange}
-          />
-          Enable Auto-Refresh
-        </label>
       </div>
     </div>
   );
