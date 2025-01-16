@@ -95,7 +95,6 @@ const CalendarGrid: React.FC = () => {
   );
 
   const isBusy = (timeSlot: string, userEvents: CalendarEvent[]): boolean => {
-    const today = dayjs();
     // Parse timeSlot and set it to today's date
     const time = dayjs()
       .set("hour", parseInt(timeSlot.split(":")[0]))
@@ -103,11 +102,7 @@ const CalendarGrid: React.FC = () => {
       .set("second", 0)
       .set("millisecond", 0);
 
-    const todayEvents = userEvents.filter(
-      (event) => dayjs(event.StartTime).isSame(today, "day") // Check if the event date is the same as today
-    );
-
-    return todayEvents.some((event) => {
+    return userEvents.some((event) => {
       const eventStart = dayjs(event.StartTime); // Parse the event start time
       const eventEnd = dayjs(event.EndTime); // Parse the event end time
 
