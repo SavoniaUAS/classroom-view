@@ -36,6 +36,7 @@ const formatEmail = (email: string): string => {
 const CalendarGrid: React.FC = () => {
   const [data, setData] = useState<UserAvailability[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [autoRefresh, setAutoRefresh] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Pagination state for columns
@@ -90,22 +91,28 @@ const CalendarGrid: React.FC = () => {
 
   // Set up automatic pagination every 30 seconds
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentPage((prevPage) => {
-        const totalColumns = data?.length || 0;
-        const totalPages = Math.ceil(totalColumns / COLUMNS_PER_PAGE);
-        const nextPage = prevPage === totalPages ? 1 : prevPage + 1;
-        return nextPage;
-      });
-    }, 30000); // Change page every 30 seconds
+    if (autoRefresh) {
+      const interval = setInterval(() => {
+        setCurrentPage((prevPage) => {
+          const totalColumns = data?.length || 0;
+          const totalPages = Math.ceil(totalColumns / COLUMNS_PER_PAGE);
+          const nextPage = prevPage === totalPages ? 1 : prevPage + 1;
+          return nextPage;
+        });
+      }, 30000); // Change page every 30 seconds
 
-    // Clear the interval when the component is unmounted
-    return () => clearInterval(interval);
-  }, [data]);
+      // Clear interval on component unmount or when autoRefresh changes
+      return () => clearInterval(interval);
+    }
+  }, [data, autoRefresh]); // Depend on `data` and `autoRefresh`
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
   if (!data) return <p>No data available.</p>;
+
+  const handleCheckboxChange = () => {
+    setAutoRefresh((prev) => !prev); // Toggle the auto-refresh state
+  };
 
   // Generate the start and end times for today
   const startOfDay = dayjs()
@@ -217,6 +224,14 @@ const CalendarGrid: React.FC = () => {
         >
           Next
         </button>
+        <label>
+          <input
+            type="checkbox"
+            checked={autoRefresh}
+            onChange={handleCheckboxChange}
+          />
+          Enable Auto-Refresh
+        </label>
       </div>
     </div>
   );
