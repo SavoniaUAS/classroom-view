@@ -58,13 +58,26 @@ const CalendarGrid: React.FC = () => {
   // Pagination state for columns
   const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      window.location.reload();
-    }, 300000); // Refresh every 5 minutes (300,000 ms)
+  const getTimeWindow = () => {
+    const currentTime = dayjs().hour();
+    const startHour = customHours ? currentTime : DAY_START_HOUR; // Use custom hours if checkbox is checked
+    const endHour = customHours ? currentTime + 3 : DAY_END_HOUR; // Use custom hours if checkbox is checked
 
-    return () => clearInterval(interval); // Cleanup on unmount
-  }, []);
+    // Generate the start and end times for today
+    const startOfDay = dayjs()
+      .startOf("day")
+      .set("hour", startHour)
+      .set("minute", 0)
+      .set("second", 0);
+    const endOfDay = dayjs()
+      .startOf("day")
+      .set("hour", endHour)
+      .set("minute", 0)
+      .set("second", 0);
+
+    setStartOfDay(startOfDay);
+    setEndOfDay(endOfDay);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -102,7 +115,15 @@ const CalendarGrid: React.FC = () => {
       }
     };
 
+    // Fetch data initially
     fetchData();
+    getTimeWindow();
+
+    // Set interval to fetch data every 5 minutes
+    const interval = setInterval(fetchData, 300000); // 300,000 ms = 5 minutes
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
   }, []); // Run once when the component mounts
 
   // Set up automatic pagination every 30 seconds
@@ -128,27 +149,6 @@ const CalendarGrid: React.FC = () => {
 
   const handleAutoRefreshChange = () => {
     setAutoRefresh((prev) => !prev); // Toggle the auto-refresh state
-  };
-
-  const getTimeWindow = () => {
-    const currentTime = dayjs().hour();
-    const startHour = customHours ? currentTime : DAY_START_HOUR; // Use custom hours if checkbox is checked
-    const endHour = customHours ? currentTime + 3 : DAY_END_HOUR; // Use custom hours if checkbox is checked
-
-    // Generate the start and end times for today
-    const startOfDay = dayjs()
-      .startOf("day")
-      .set("hour", startHour)
-      .set("minute", 0)
-      .set("second", 0);
-    const endOfDay = dayjs()
-      .startOf("day")
-      .set("hour", endHour)
-      .set("minute", 0)
-      .set("second", 0);
-
-    setStartOfDay(startOfDay);
-    setEndOfDay(endOfDay);
   };
 
   const handleTimeWindowChange = () => {
