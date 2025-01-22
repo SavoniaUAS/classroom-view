@@ -99,7 +99,6 @@ const CalendarGrid: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      getTimeWindow(); // Update time window
       try {
         // Fetch classrooms data
         const classroomsResult = await fetchClassroomsData();
