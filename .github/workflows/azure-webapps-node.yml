@@ -31,12 +31,12 @@ jobs:
           ###### End of Repository/Build Configurations ######
         ## Move these to Github secrets and replace values with e.g ${{ secrets.REACT_APP_CLASSROOMS_API_URL}} ##  
         env:
-          REACT_APP_COLUMNS_PER_PAGE=10
-          REACT_APP_DAY_START_HOUR=7
-          REACT_APP_DAY_END_HOUR=18
-          REACT_APP_REFRESH_INTERVAL_MINUTES=5
-          REACT_APP_CLASSROOMS_API_URL=https://classroomview-func.azurewebsites.net/api/getClassrooms?code=EHMKiWVC0m_G_mZsU0wdadDL7bu9_D-73n0ha8X1zlTBAzFuM-HO3g%3D%3D
-          REACT_APP_AVAILABILITY_API_URL=https://classroomview-func.azurewebsites.net/api/getCalendarData?code=uqs8Zf76n5EcLAQ4qosrD2WJ5NOPxEMf-WGZo2U3LPoCAzFuEbIsVQ%3D%3D
+          REACT_APP_COLUMNS_PER_PAGE: "10"
+          REACT_APP_DAY_START_HOUR: "7"
+          REACT_APP_DAY_END_HOUR: "18"
+          REACT_APP_REFRESH_INTERVAL_MINUTES: "5"
+          REACT_APP_CLASSROOMS_API_URL: "https://classroomview-func.azurewebsites.net/api/getClassrooms?code=EHMKiWVC0m_G_mZsU0wdadDL7bu9_D-73n0ha8X1zlTBAzFuM-HO3g%3D%3D"
+          REACT_APP_AVAILABILITY_API_URL: "https://classroomview-func.azurewebsites.net/api/getCalendarData?code=uqs8Zf76n5EcLAQ4qosrD2WJ5NOPxEMf-WGZo2U3LPoCAzFuEbIsVQ%3D%3D"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
