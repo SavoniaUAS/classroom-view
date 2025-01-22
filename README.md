@@ -96,7 +96,52 @@ The workflow performs the following:
    - Under **Secrets and variables > Actions**, add a secret named `AZURE_STATIC_WEB_APPS_API_TOKEN`.
    - Paste the deployment token obtained from Azure.
 
-3. **Push Changes to `main`**:
+3. **Add Environment Variables to GitHub Secrets**:
+
+   Since Azure Static Web Apps only supports backend environment variables, frontend environment variables (such as API URLs and other settings) must be set in **GitHub Secrets**.
+
+   - Go to **Settings > Secrets and variables > Actions** in your GitHub repository.
+   - Add new secrets for any environment variables you need, for example:
+     - `REACT_APP_CLASSROOMS_API_URL`
+     - `REACT_APP_AVAILABILITY_API_URL`
+     - `REACT_APP_COLUMNS_PER_PAGE`
+     - `REACT_APP_DAY_START_HOUR`
+     - `REACT_APP_DAY_END_HOUR`
+     - `REACT_APP_REFRESH_INTERVAL_MINUTES`
+
+4. **Update GitHub Actions Workflow File**:
+
+   If you add any new environment variables, make sure to update the GitHub Actions workflow file (`.github/workflows/azure-static-web-apps.yml`) to reference those secrets in the `env` section, like this:
+
+   ```yaml
+   jobs:
+     build_and_deploy_job:
+       runs-on: ubuntu-latest
+       name: Build and Deploy Job
+       steps:
+         - uses: actions/checkout@v3
+           name: Checkout code
+
+         - name: Build and Deploy
+           id: builddeploy
+           uses: Azure/static-web-apps-deploy@v1
+           with:
+             azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+             repo_token: ${{ secrets.GITHUB_TOKEN }}
+             action: "upload"
+             app_location: "/" # App source code path
+             api_location: "" # Api source code path - optional
+             output_location: "build" # Built app content directory - optional
+           env:
+             REACT_APP_COLUMNS_PER_PAGE: ${{ secrets.REACT_APP_COLUMNS_PER_PAGE }}
+             REACT_APP_DAY_START_HOUR: ${{ secrets.REACT_APP_DAY_START_HOUR }}
+             REACT_APP_DAY_END_HOUR: ${{ secrets.REACT_APP_DAY_END_HOUR }}
+             REACT_APP_REFRESH_INTERVAL_MINUTES: ${{ secrets.REACT_APP_REFRESH_INTERVAL_MINUTES }}
+             REACT_APP_CLASSROOMS_API_URL: ${{ secrets.REACT_APP_CLASSROOMS_API_URL }}
+             REACT_APP_AVAILABILITY_API_URL: ${{ secrets.REACT_APP_AVAILABILITY_API_URL }}
+   ```
+
+5. **Push Changes to `main`**:
    - Once changes are pushed to the `main` branch, the GitHub Action will automatically build and deploy the project to Azure.
 
 ---
