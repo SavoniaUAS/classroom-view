@@ -27,18 +27,21 @@ This project is a React-based calendar grid that displays classroom or user avai
 ## Installation
 
 1. **Clone the Repository**:
+
    ```bash
    git clone <repository-url>
    cd <repository-folder>
    ```
 
 2. **Install Dependencies**:
+
    ```bash
    npm install
    ```
 
 3. **Set Up Environment Variables**:
    Create a `.env` file in the root directory and add the necessary API base URLs:
+
    ```
    REACT_APP_CLASSROOMS_API=<classrooms-endpoint>
    REACT_APP_CALENDAR_API=<calendar-data-endpoint>
@@ -51,6 +54,21 @@ This project is a React-based calendar grid that displays classroom or user avai
 
 ---
 
+## Local Environment Configuration
+
+To run the application locally, you need to create a `.env.local` file in the root directory of the project. Add the following environment variables to the file:
+
+```env
+REACT_APP_COLUMNS_PER_PAGE=10          # Number of user columns displayed per page
+REACT_APP_DAY_START_HOUR=7             # Start hour for the calendar grid (24-hour format)
+REACT_APP_DAY_END_HOUR=18              # End hour for the calendar grid (24-hour format)
+REACT_APP_REFRESH_INTERVAL_MINUTES=5   # Auto-refresh interval in minutes
+REACT_APP_CLASSROOMS_API_URL=<url>     # Url of Azure-function getClassrooms
+REACT_APP_AVAILABILITY_API_URL=<url>   # Url of Azure-function getCalendarData
+```
+
+---
+
 ## Deployment
 
 ### Automatic Deployment with GitHub Actions
@@ -60,16 +78,20 @@ This project includes a GitHub Action workflow configured to deploy the applicat
 #### Workflow File: `.github/workflows/azure-static-web-apps.yml`
 
 The workflow performs the following:
+
 - Installs dependencies.
 - Builds the project.
 - Deploys to Azure Static Web Apps.
 
 #### Steps to Set Up Azure Deployment:
+
 1. **Create an Azure Static Web App**:
+
    - Follow the [Azure documentation](https://learn.microsoft.com/en-us/azure/static-web-apps/) to create a Static Web App.
    - Note the **deployment token** for use in GitHub Secrets.
 
 2. **Set Up GitHub Secrets**:
+
    - Go to your GitHub repository settings.
    - Under **Secrets and variables > Actions**, add a secret named `AZURE_STATIC_WEB_APPS_API_TOKEN`.
    - Paste the deployment token obtained from Azure.
@@ -94,9 +116,12 @@ The workflow performs the following:
 ## Usage
 
 ### API Integration
+
 The application requires two APIs to function:
+
 1. **Classroom List API** (`fetchClassroomsData`): Returns an array of classroom email addresses.
    Example Response:
+
    ```json
    ["room1@example.com", "room2@example.com"]
    ```
@@ -122,6 +147,7 @@ The application requires two APIs to function:
    ```
 
 ### User Interaction
+
 - **Auto-Refresh**: Enable or disable automatic data refresh using the checkbox.
 - **Time Window**: Toggle between "upcoming hours only" and "full day" views.
 - **Pagination**: Navigate between pages of user columns using the pagination controls.
@@ -131,29 +157,35 @@ The application requires two APIs to function:
 ## Customization
 
 ### Adjust Time Range
+
 Modify `DAY_START_HOUR` and `DAY_END_HOUR` constants in `CalendarGrid.tsx` to change the default time range.
 
 ### Columns Per Page
+
 Update `COLUMNS_PER_PAGE` to adjust the number of user columns displayed per page.
 
 ### Auto-Refresh Interval
+
 Change the refresh interval by modifying the `setInterval` duration in the `useEffect` hooks.
 
 ---
 
 ## Error Handling
+
 - Displays an error message if data fetching fails.
 - Logs errors for debugging purposes.
 
 ---
 
 ## Limitations
+
 - The application assumes consistent API responses. Unexpected changes in API structure may break functionality.
 - Currently supports only 30-minute time slots. Custom intervals require modifying the `generateTimeSlots` function.
 
 ---
 
 ## Future Improvements
+
 - Add search functionality for filtering classrooms or users.
 - Support for multiple calendar views (daily, weekly, monthly).
 - Enhance mobile responsiveness.

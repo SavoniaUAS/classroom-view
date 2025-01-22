@@ -10,9 +10,18 @@ import {
 
 dayjs.extend(isSameOrAfter);
 
-const COLUMNS_PER_PAGE = 10; // Adjust the number of user columns per page
-const DAY_START_HOUR = 7;
-const DAY_END_HOUR = 18;
+const columnsPerPage = process.env.REACT_APP_COLUMNS_PER_PAGE
+  ? Number(process.env.REACT_APP_COLUMNS_PER_PAGE)
+  : 10;
+const dayStartHour = process.env.REACT_APP_DAY_START_HOUR
+  ? Number(process.env.REACT_APP_DAY_START_HOUR)
+  : 7;
+const dayEndHour = process.env.REACT_APP_DAY_END_HOUR
+  ? Number(process.env.REACT_APP_DAY_END_HOUR)
+  : 18;
+const refreshInterval = process.env.REACT_APP_REFRESH_INTERVAL_MINUTES
+  ? Number(process.env.REACT_APP_REFRESH_INTERVAL_MINUTES)
+  : 5;
 
 const generateTimeSlots = (start: string, end: string): string[] => {
   const slots: string[] = [];
@@ -48,14 +57,14 @@ const CalendarGrid: React.FC = () => {
   const [startOfDay, setStartOfDay] = useState<Dayjs>(
     dayjs()
       .startOf("day")
-      .set("hour", DAY_START_HOUR)
+      .set("hour", dayStartHour)
       .set("minute", 0)
       .set("second", 0)
   );
   const [endOfDay, setEndOfDay] = useState<Dayjs>(
     dayjs()
       .startOf("day")
-      .set("hour", DAY_END_HOUR)
+      .set("hour", dayEndHour)
       .set("minute", 0)
       .set("second", 0)
   );
@@ -67,8 +76,8 @@ const CalendarGrid: React.FC = () => {
 
   const getTimeWindow = useCallback(() => {
     const currentTime = dayjs().hour();
-    const startHour = customHours ? currentTime : DAY_START_HOUR; // Use custom hours if checkbox is checked
-    const endHour = customHours ? currentTime + 3 : DAY_END_HOUR; // Use custom hours if checkbox is checked
+    const startHour = customHours ? currentTime : dayStartHour; // Use custom hours if checkbox is checked
+    const endHour = customHours ? currentTime + 3 : dayEndHour; // Use custom hours if checkbox is checked
 
     // Generate the start and end times for today
     const startOfDay = dayjs()
@@ -136,7 +145,7 @@ const CalendarGrid: React.FC = () => {
     fetchData();
 
     // Set interval to fetch data every 5 minutes
-    const interval = setInterval(fetchData, 300000); // 300,000 ms = 5 minutes
+    const interval = setInterval(fetchData, refreshInterval * 60000); // 300,000 ms = 5 minutes * 60s * 1000ms
 
     // Cleanup interval on component unmount
     return () => clearInterval(interval);
@@ -153,7 +162,7 @@ const CalendarGrid: React.FC = () => {
       const interval = setInterval(() => {
         setCurrentPage((prevPage) => {
           const totalColumns = data?.length || 0;
-          const totalPages = Math.ceil(totalColumns / COLUMNS_PER_PAGE);
+          const totalPages = Math.ceil(totalColumns / columnsPerPage);
           const nextPage = prevPage === totalPages ? 1 : prevPage + 1;
           return nextPage;
         });
@@ -204,13 +213,13 @@ const CalendarGrid: React.FC = () => {
   };
 
   // Get the user columns for the current page
-  const indexOfLastColumn = currentPage * COLUMNS_PER_PAGE;
-  const indexOfFirstColumn = indexOfLastColumn - COLUMNS_PER_PAGE;
+  const indexOfLastColumn = currentPage * columnsPerPage;
+  const indexOfFirstColumn = indexOfLastColumn - columnsPerPage;
   const currentColumns = data.slice(indexOfFirstColumn, indexOfLastColumn);
 
   // Generate page numbers for columns
   const totalColumns = data.length;
-  const totalPages = Math.ceil(totalColumns / COLUMNS_PER_PAGE);
+  const totalPages = Math.ceil(totalColumns / columnsPerPage);
   const pageNumbers = [];
   for (let i = 1; i <= totalPages; i++) {
     pageNumbers.push(i);
